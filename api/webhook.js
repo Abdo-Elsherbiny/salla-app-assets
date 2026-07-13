@@ -1,7 +1,9 @@
 import { Redis } from "@upstash/redis";
-import crypto from "crypto";
 
-const redis = Redis.fromEnv();
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_KV_REST_API_URL,
+  token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN,
+});
 
 export const config = {
   api: { bodyParser: false },
@@ -16,13 +18,10 @@ function getRawBody(req) {
   });
 }
 
-function verifySignature(rawBody, signatureHeader, secret) {
-  if (!secret || !signatureHeader) return false;
-  const computed = crypto
-    .createHmac("sha256", secret)
-    .update(rawBody)
-    .digest("hex");
-  return computed === signatureHeader;
+function verifyToken(authHeader, secret) {
+  if (!secret || !authHeader) return false;
+  const receivedToken = authHeader.replace(/^Bearer\s+/i, "").trim();
+  return receivedToken === secret;
 }
 
 export default async function handler(req, res) {
@@ -32,13 +31,13 @@ export default async function handler(req, res) {
 
   try {
     const rawBody = await getRawBody(req);
-    const signature = req.headers["x-salla-signature"];
+    const authHeader = req.headers["authorization"];
     const secret = process.env.SALLA_WEBHOOK_SECRET;
-    const isValid = verifySignature(rawBody, signature, secret);
+    const isValid = verifyToken(authHeader, secret);
 
     if (!isValid) {
-      console.warn("Webhook: invalid signature, rejected.");
-      return res.status(401).json({ error: "Invalid signature" });
+      console.warn("Webhook: invalid token, rejected.");
+      return res.status(401).json({ error: "Invalid token" });
     }
 
     const payload = JSON.parse(rawBody);
