@@ -1,0 +1,23 @@
+/* استدعاء خط Cairo */
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@600&display=swap");
+
+/* تنسيق الشريط العائم بتأثير Glassmorphism */
+.salla-test-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(15, 15, 15, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-family: "Cairo", sans-serif;
+  font-size: 14px;
+  z-index: 999999;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  direction: rtl;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
