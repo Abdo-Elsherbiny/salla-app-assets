@@ -15,7 +15,8 @@ document.body.appendChild(badge);
 
 // --- إعدادات الواتساب ---
 // ضع رقم الهاتف هنا مسبوقاً بكود الدولة (مثال لمصر: 201XXXXXXXXX)
-const whatsappNumber = "201069785506";
+// هنا بنقوله: اقرأ الرقم الخاص بالتاجر من سلة، ولو مفيش استخدم الرقم الافتراضي ده
+const whatsappNumber = window.merchantWhatsapp || "201069785506";
 
 // إنشاء الرابط الخاص بالواتساب
 const waWidget = document.createElement("a");
