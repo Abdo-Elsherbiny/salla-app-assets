@@ -104,5 +104,5 @@ function initSallaWidget() {
   }
 }
 
-// تشغيل الانتظار بمجرد تحميل هيكل الصفحة
-document.addEventListener("DOMContentLoaded", initSallaWidget);
+// تشغيل الفحص فوراً بمجرد ما الملف يتحمل وينفذ
+initSallaWidget();
