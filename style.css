@@ -22,34 +22,204 @@
   transition: all 0.3s ease;
 }
 
-/* WhatsApp Widget - BEM Methodology */
+/* Container */
 .wa-widget {
   position: fixed;
   bottom: 20px;
-  left: 20px; /* تم وضعه في اليسار */
+  left: 20px; /* يمكن تغييرها إلى right إذا أردت اليمين */
+  z-index: 999999;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+/* --- Floating Trigger Button --- */
+.wa-widget__trigger {
   width: 60px;
   height: 60px;
-  background-color: #25d366; /* لون الواتساب الرسمي */
-  color: #ffffff !important;
+  background-color: #25d366;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  padding: 0;
+  outline: none;
+}
+.wa-widget__trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.5);
+}
+.wa-widget__trigger-icon {
+  width: 35px;
+  height: 35px;
+  fill: #ffffff;
+}
+
+/* --- Popup Window --- */
+.wa-widget__popup {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  width: 320px;
+  background-color: #e5ddd5;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  direction: rtl; /* لضبط الاتجاه للعربية */
+}
+.wa-widget__popup--active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Header */
+.wa-widget__header {
+  background-color: #25d366;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  position: relative;
+}
+.wa-widget__avatar-box {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  background-color: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 12px;
+}
+.wa-widget__avatar {
+  width: 40px;
+  height: 40px;
+}
+.wa-widget__status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background-color: #4caf50;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+.wa-widget__info {
+  flex: 1;
+}
+.wa-widget__name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.wa-widget__reply {
+  font-size: 12px;
+  opacity: 0.9;
+}
+.wa-widget__close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.wa-widget__close:hover {
+  opacity: 1;
+}
+
+/* Body & Chat Bubble */
+.wa-widget__body {
+  padding: 20px 16px;
+  background-color: #e5ddd5;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 10l10-10H0l10 10z' fill='%23d8d0c7' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+.wa-widget__chat-bubble {
+  background-color: #ffffff;
+  padding: 12px 14px;
+  border-radius: 8px 0 8px 8px;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+}
+/* ذيل فقاعة المحادثة */
+.wa-widget__chat-bubble::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 10px 8px;
+  border-color: transparent transparent transparent #ffffff;
+}
+.wa-widget__chat-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #075e54;
+  margin-bottom: 4px;
+}
+.wa-widget__chat-text {
+  font-size: 14px;
+  color: #333333;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+.wa-widget__chat-time {
+  font-size: 11px;
+  color: #999999;
+  text-align: left;
+}
+
+/* Footer & Button */
+.wa-widget__footer {
+  background-color: #ffffff;
+  padding: 16px;
+  text-align: center;
+}
+.wa-widget__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #25d366;
+  color: #ffffff !important;
   text-decoration: none;
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
-  z-index: 999999;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  padding: 10px 24px;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
-
-.wa-widget:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.6);
+.wa-widget__btn:hover {
+  background-color: #1ebe5d;
 }
-
-.wa-widget__icon {
-  width: 35px;
-  height: 35px;
-  fill: currentColor;
+.wa-widget__btn-icon {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+  margin-left: 8px;
 }
