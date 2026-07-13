@@ -1,57 +1,56 @@
 (function () {
   "use strict";
 
-  /**
-   * Reads, sanitizes, and freezes the settings injected by Salla snippet.
-   * @returns {Object|null} Frozen settings object or null if invalid.
-   */
-  function getSettings() {
-    if (!window.waSettings || !window.waSettings.number) {
-      console.warn(
-        "Salla WhatsApp Widget: Missing settings or WhatsApp number. Execution stopped.",
+  async function fetchSettings() {
+    try {
+      const storeId =
+        typeof salla !== "undefined" && salla.config
+          ? salla.config.get("store.id")
+          : null;
+
+      if (!storeId) {
+        console.warn("Salla WhatsApp Widget: store id not found.");
+        return null;
+      }
+
+      const response = await fetch(
+        `https://salla-app-assets.vercel.app/api/settings?store=${storeId}`,
       );
+
+      if (!response.ok) {
+        console.warn(
+          "Salla WhatsApp Widget: settings request failed.",
+          response.status,
+        );
+        return null;
+      }
+
+      const data = await response.json();
+      const sanitizedNumber = String(data.number || "").replace(/\D/g, "");
+
+      if (!sanitizedNumber) {
+        console.warn(
+          "Salla WhatsApp Widget: no WhatsApp number configured for this store.",
+        );
+        return null;
+      }
+
+      return Object.freeze({
+        number: sanitizedNumber,
+        message: String(data.message || "").trim(),
+      });
+    } catch (error) {
+      console.error("Salla WhatsApp Widget: failed to fetch settings.", error);
       return null;
     }
-
-    // Sanitize: Remove spaces, plus signs, and all non-numeric characters
-    const rawNumber = String(window.waSettings.number);
-    const sanitizedNumber = rawNumber.replace(/\D/g, "");
-
-    if (!sanitizedNumber) {
-      console.warn(
-        "Salla WhatsApp Widget: Invalid WhatsApp number format. Execution stopped.",
-      );
-      return null;
-    }
-
-    const rawMessage = window.waSettings.message
-      ? String(window.waSettings.message).trim()
-      : "";
-
-    // Freeze settings to prevent accidental runtime modifications
-    return Object.freeze({
-      number: sanitizedNumber,
-      message: rawMessage,
-    });
   }
 
-  /**
-   * Generates the WhatsApp wa.me URL with encoded text.
-   * @param {Object} settings Frozen settings object
-   * @returns {string} WhatsApp URL
-   */
   function createWhatsAppLink(settings) {
     const encodedMessage = encodeURIComponent(settings.message);
     return `https://wa.me/${settings.number}?text=${encodedMessage}`;
   }
 
-  /**
-   * Builds the widget HTML and injects it into the DOM.
-   * @param {string} waLink The generated WhatsApp URL
-   * @returns {boolean} True if injected successfully, false if duplicate.
-   */
   function buildWidget(waLink) {
-    // Prevent duplicate widgets
     if (document.querySelector(".wa-widget")) {
       console.warn(
         "Salla WhatsApp Widget: Widget already exists. Stopping duplicate injection.",
@@ -65,7 +64,6 @@
       minute: "2-digit",
     });
 
-    // HTML Structure (Preserved exactly as requested, enhanced with ARIA labels)
     const waWidgetHTML = `
         <div class="wa-widget">
             <div class="wa-widget__popup" id="wa-popup" aria-hidden="true" role="dialog" aria-label="نافذة محادثة واتساب">
@@ -103,52 +101,35 @@
     return true;
   }
 
-  /**
-   * Binds click events for opening and closing the widget.
-   * Includes safe error handling if elements are missing.
-   */
   function bindEvents() {
     const triggerBtn = document.getElementById("wa-trigger-btn");
     const closeBtn = document.getElementById("wa-close-btn");
     const popupWindow = document.getElementById("wa-popup");
-
-    if (!triggerBtn || !closeBtn || !popupWindow) {
-      console.warn(
-        "Salla WhatsApp Widget: DOM elements not found. Event binding aborted.",
-      );
-      return;
-    }
+    if (!triggerBtn || !closeBtn || !popupWindow) return;
 
     triggerBtn.addEventListener("click", () => {
       const isActive = popupWindow.classList.toggle("wa-widget__popup--active");
-      // Update accessibility states
       triggerBtn.setAttribute("aria-expanded", isActive);
       popupWindow.setAttribute("aria-hidden", !isActive);
     });
 
     closeBtn.addEventListener("click", () => {
       popupWindow.classList.remove("wa-widget__popup--active");
-      // Update accessibility states
       triggerBtn.setAttribute("aria-expanded", "false");
       popupWindow.setAttribute("aria-hidden", "true");
     });
   }
 
-  /**
-   * Orchestrates the initialization process safely.
-   */
-  function init() {
+  async function init() {
     try {
-      const settings = getSettings();
+      const settings = await fetchSettings();
       if (!settings) return;
 
       const waLink = createWhatsAppLink(settings);
-
       const isBuilt = buildWidget(waLink);
       if (!isBuilt) return;
 
       bindEvents();
-
       console.log("✅ Salla WhatsApp Widget: Initialized successfully.");
     } catch (error) {
       console.error(
@@ -158,7 +139,6 @@
     }
   }
 
-  // Execute safely when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
